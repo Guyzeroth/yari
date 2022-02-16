@@ -10,7 +10,6 @@ import {
 } from "../contexts/search-filters";
 import SearchFilter from "../search-filter";
 import "./index.scss";
-import NotificationCard from "./notification-card";
 import IconCard from "../icon-card";
 import useSWR, { mutate } from "swr";
 import { HEADER_NOTIFICATIONS_MENU_API_URL } from "../../constants";
@@ -20,9 +19,9 @@ import {
   markNotificationsAsRead,
 } from "./client";
 import { getCookie, post } from "./utils";
-import NotificationCardListItem from "./notification-card2";
 import { Button } from "../../ui/atoms/button";
 import { useUIStatus } from "../../ui-context";
+import NotificationCardListItem from "./notification-card-list-item";
 
 enum TabVariant {
   ALL,
