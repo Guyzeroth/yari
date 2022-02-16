@@ -20,8 +20,9 @@ export default function List({
   makeKey: CallableFunction;
   pageTitle: string;
 }) {
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchParams] = useSearchParams();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
   const userData = useUserData();
   const csrfToken = useCSRFMiddlewareToken();
 
