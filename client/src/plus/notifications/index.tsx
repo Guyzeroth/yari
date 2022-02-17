@@ -11,24 +11,29 @@ import {
 import SearchFilter from "../search-filter";
 import "./index.scss";
 import IconCard from "../icon-card";
-import useSWR, { mutate } from "swr";
+import { mutate } from "swr";
 import { HEADER_NOTIFICATIONS_MENU_API_URL } from "../../constants";
 import {
   NOTIFICATIONS_MARK_ALL_AS_READ_PATH,
-  NOTIFICATIONS_BASE_PATH,
   markNotificationsAsRead,
+  useNotificationsEndpoint,
+  deleteItemsById,
+  toggleStarItemsById,
+  undoDeleteItemById,
+  deleteItemById,
+  starItem,
 } from "./client";
 import { getCookie, post } from "./utils";
 import { Button } from "../../ui/atoms/button";
 import { useUIStatus } from "../../ui-context";
 import NotificationCardListItem from "./notification-card-list-item";
+import SelectedNotificationsBar from "./notification-select";
 
 enum TabVariant {
   ALL,
   STARRED,
   WATCHING,
 }
-
 interface Tab {
   variant: TabVariant;
   pageTitle: string;
@@ -105,9 +110,10 @@ function NotificationsLayout() {
   ];
 
   const currentTab = useCurrentTab(locale);
-  const [page, setPage] = useState(0);
-  const [list, setList] = useState([{ id: 0 }]);
 
+  const [page, setPage] = useState(1);
+  const [list, setList] = useState<Array<any>>([]);
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
   const { selectedTerms, getSearchFiltersParams } =
     useContext(searchFiltersContext);
 
@@ -119,47 +125,77 @@ function NotificationsLayout() {
     selectedTerms
   )}`;
 
-  const { data, error, mutate } = useNotificationsApi(
+  const { data, error, mutate } = useNotificationsEndpoint(
     page,
     selectedTerms,
-    currentTab
+    currentTab === TabVariant.STARRED
   );
 
+  //On tab change reset paging.
   useEffect(() => {
-    setPage(0);
+    setPage(1);
+    setList([]);
+    setSelectAllChecked(false);
   }, [currentTab]);
 
   useEffect(() => {
     if (data) {
-      setList(data.items);
+      setList([
+        ...list,
+        ...data.items.map((item) => {
+          console.log(item.id);
+          return { ...item, checked: false };
+        }),
+      ]);
     }
   }, [data]);
 
-  const onStarred = async (item) => {
-    await post(
-      `${NOTIFICATIONS_BASE_PATH}/${item.id}/toggle-starred/`,
-      data.csrfmiddlewaretoken
-    );
-    mutate();
-  };
-
-  const onDeleted = async (item) => {
-    const undo = `${NOTIFICATIONS_BASE_PATH}/${item.id}/undo-deletion/`;
-    await post(
-      `${NOTIFICATIONS_BASE_PATH}/${item.id}/delete/`,
-      data.csrfmiddlewaretoken
-    );
+  const deleteItem = async (item) => {
+    deleteItemById(data.csrfmiddlewaretoken, item.id);
     setToastData({
       mainText: `${item.title} removed from your collection`,
       shortText: "Article removed",
-      buttonText: "UNDO",
+      buttonText: "Undo",
       buttonHandler: async () => {
-        await post(undo, data.csrfmiddlewaretoken);
+        await undoDeleteItemById(data.csrfmiddlewaretoken, item.id);
         mutate();
         setToastData(null);
       },
     });
     mutate();
+  };
+
+  const deleteMany = async () => {
+    const toDelete = list.filter((v) => v.checked).map((i) => i.id);
+    await deleteItemsById(data.csrfToken, toDelete);
+    mutate();
+  };
+
+  const toggleStarItem = async (item) => {
+    await starItem(data.csrfmiddlewaretoken, item.id);
+    mutate();
+  };
+
+  const starMany = async () => {
+    const toStar = list.filter((v) => v.checked && !v.starred).map((i) => i.id);
+    await toggleStarItemsById(data.csrfmiddlewaretoken, toStar);
+    mutate();
+  };
+
+  const unstarMany = async () => {
+    const toUnstar = list.filter((v) => v.checked).map((i) => i.id);
+    await toggleStarItemsById(data.csrfToken, toUnstar);
+    mutate();
+  };
+
+  const toggleItemChecked = (item) => {
+    const newList = list.map((v) => {
+      if (v.id === item.id) {
+        v.checked = !v.checked;
+      }
+      return v;
+    });
+    setList(newList);
   };
 
   return (
@@ -187,19 +223,39 @@ function NotificationsLayout() {
         ) : (
           <>
             <SearchFilter filters={FILTERS} sorts={SORTS} />
+            <SelectedNotificationsBar
+              isChecked={selectAllChecked}
+              onStarSelected={starMany}
+              onSelectAll={(e) => {
+                setList(
+                  list.map((item) => {
+                    return { ...item, checked: e.target.checked };
+                  })
+                );
+                setSelectAllChecked(!selectAllChecked);
+              }}
+              onUnstarSelected={unstarMany}
+              onDeleteSelected={deleteMany}
+            />
             <ul>
               {list.map((item) => (
                 <NotificationCardListItem
-                  handleDelete={onDeleted}
+                  handleDelete={deleteItem}
                   item={item}
-                  toggleSelected={() => {}}
-                  toggleStarred={onStarred}
+                  toggleSelected={toggleItemChecked}
+                  toggleStarred={toggleStarItem}
                   key={item.id}
                 />
               ))}
             </ul>
             <div className="pagination">
-              <Button type="primary" onClickHandler={() => setPage(page + 1)}>
+              <Button
+                type="primary"
+                onClickHandler={() => {
+                  setSelectAllChecked(false);
+                  setPage(page + 1);
+                }}
+              >
                 Show more
               </Button>
             </div>
@@ -238,32 +294,6 @@ function registerSendBeaconHandler(formData: FormData) {
   };
   document.addEventListener("visibilitychange", handler);
   return handler;
-}
-
-function useNotificationsApi(
-  page: number,
-  searchTerms: string,
-  currentTab: TabVariant
-) {
-  const sp = new URLSearchParams();
-  page!! && sp.append("page", page.toString());
-  searchTerms!! && sp.append("q", searchTerms);
-  (currentTab === TabVariant.STARRED)!! && sp.append("starred", "true");
-
-  return useSWR(
-    `${NOTIFICATIONS_BASE_PATH}?${sp.toString()}`,
-    async (url) => {
-      const response = await fetch(url);
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(`${response.status} on ${url}: ${text}`);
-      }
-      return await response.json();
-    },
-    {
-      revalidateOnFocus: true,
-    }
-  );
 }
 
 //   useEffect(() => {

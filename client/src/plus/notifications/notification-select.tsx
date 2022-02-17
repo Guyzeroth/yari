@@ -1,25 +1,21 @@
-import { useState } from "react";
 import { Button } from "../../ui/atoms/button";
 import { Checkbox } from "../../ui/molecules/notifications-watch-menu/atoms/checkbox";
 
-export default function SelectedNotificationsBar({}) {
-  const [notificationsSelected, setNotificationsSelected] =
-    useState<boolean>(false);
-
-  const [selectedNotifications, setSelectedNotifications] = useState<
-    Int32Array[]
-  >([]);
-
-  const deleteSelected = () => {};
-
+export default function SelectedNotificationsBar({
+  isChecked,
+  onSelectAll,
+  onStarSelected,
+  onDeleteSelected,
+  onUnstarSelected,
+}) {
   return (
     <form>
-      <Checkbox name="select-all" onChange={() => null} />
+      <Checkbox name="select-all" onChange={onSelectAll} checked={isChecked} />
       <Button
         type="secondary"
         // ariaControls={sortMenu.id}
         // ariaHasPopup={"menu"}
-        onClickHandler={deleteSelected}
+        onClickHandler={onStarSelected}
       >
         Star
       </Button>
@@ -27,7 +23,7 @@ export default function SelectedNotificationsBar({}) {
         type="secondary"
         // ariaControls={sortMenu.id}
         // ariaHasPopup={"menu"}
-        onClickHandler={deleteSelected}
+        onClickHandler={onUnstarSelected}
       >
         Unstar
       </Button>
@@ -35,7 +31,7 @@ export default function SelectedNotificationsBar({}) {
         type="secondary"
         // ariaControls={sortMenu.id}
         // ariaHasPopup={"menu"}
-        onClickHandler={deleteSelected}
+        onClickHandler={onDeleteSelected}
       >
         Delete
       </Button>

@@ -8,7 +8,7 @@ export default function NotificationCardListItem({
   toggleSelected,
   toggleStarred,
   item,
-  handleDelete: handleDeletion,
+  handleDelete,
 }) {
   const [show, setShow] = React.useState(false);
 
@@ -20,7 +20,7 @@ export default function NotificationCardListItem({
       <Checkbox
         name="selected"
         checked={item.checked}
-        onChange={toggleSelected}
+        onChange={(e) => toggleSelected(item, e.target.value)}
       />
       <Button
         type="action"
@@ -63,7 +63,7 @@ export default function NotificationCardListItem({
         <DropdownMenu>
           <ul className="dropdown-list" id="watch-card-dropdown">
             <li className="dropdown-item">
-              <Button type="action" onClickHandler={() => handleDeletion(item)}>
+              <Button type="action" onClickHandler={() => handleDelete(item)}>
                 Delete
               </Button>
             </li>
