@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import useSWRInfinite from "swr/infinite";
 import { TabVariant } from ".";
 
 export const NOTIFICATIONS_BASE_PATH = "/api/v1/plus/notifications";
