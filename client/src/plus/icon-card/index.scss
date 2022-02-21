@@ -6,12 +6,22 @@
   gap: 0.5rem;
 }
 
+@keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .icon-card {
   border: 1px solid var(--border-secondary);
   border-radius: var(--elem-radius);
   background-color: var(--background-primary);
   padding: 1rem 1rem 1rem 0.5rem;
   transition: 0.3s ease-out; // this removes a flash from .doomed animations
+  animation: fadeIn .4s;
 
   a {
     &:link,
@@ -20,6 +30,9 @@
     }
   }
 
+  &:first-child {
+    margin-top: 1rem;
+  }
   & > *:last-child {
     margin-bottom: 0;
   }

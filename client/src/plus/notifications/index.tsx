@@ -152,7 +152,7 @@ function NotificationsLayout() {
         </Container>
         <Tabs tabs={tabs} />
       </header>
-
+      {isLoading && <Loading message="Waiting for data" />}
       {showTabs && (
         <Container>
           <>
@@ -168,7 +168,6 @@ function NotificationsLayout() {
           {!userData && <Loading message="Waiting for authentication" />}
           {!userData && !isAuthed && <NotSignedIn />}
           {error && <DataError error={error} />}
-          {isLoading && <Loading message="Waiting for data" />}
         </Container>
       )}
     </>
@@ -304,7 +303,11 @@ function NotificationsTab({
     setList(newList);
   };
 
-  const unwatchItem = () => {};
+  const unwatchItem = async (toUnWatch) => {
+    await unwatchItemsByUrls(data.csrfmiddlewaretoken, [toUnWatch]);
+    const updated = list.filter((v) => v.id !== toUnWatch.id);
+    setList(updated);
+  };
   const unwatchMany = async () => {
     const toUnWatch = list.filter((v) => v.checked);
     await unwatchItemsByUrls(data.csrfmiddlewaretoken, toUnWatch);
@@ -358,7 +361,7 @@ function NotificationsTab({
         onUnwatchSelected={unwatchMany}
         watchedTab={currentTab === TabVariant.WATCHING}
       />
-      <ul>
+      <ul className="notification-list">
         {currentTab === TabVariant.WATCHING && (
           <div className="icon-card-list">{cardList}</div>
         )}

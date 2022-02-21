@@ -73,7 +73,7 @@ export default function WatchedCardListItem({
           <DropdownMenu>
             <ul className="dropdown-list" id="watch-card-dropdown">
               <li className="dropdown-item">
-                <Button type="action" onClickHandler={onUnwatched}>
+                <Button type="action" onClickHandler={() => onUnwatched(item)}>
                   Unwatch
                 </Button>
               </li>
