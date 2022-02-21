@@ -80,3 +80,13 @@
     }
   }
 }
+
+.select-all-toolbar {
+  padding: 0.5rem;
+  display: flex;
+  background-color: var(--background-primary);
+  align-items: center;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--elem-radius);
+  gap: 1rem;
+}

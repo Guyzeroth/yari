@@ -15,7 +15,7 @@ export default function NotificationCardListItem({
   return (
     <li
       className={`notification-card ${!item.read ? "unread" : ""}`}
-      id={item.id}
+      key={item.id}
     >
       <Checkbox
         name="selected"
