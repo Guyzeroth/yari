@@ -19,7 +19,9 @@ import { Plus } from "./plus";
 import { About } from "./about";
 import { AppSettings } from "./app-settings";
 import { docCategory } from "./utils";
-import { Contribute } from "./contribute";
+import { Contribute } from "./community";
+import { ContributorSpotlight } from "./contributor-spotlight";
+// import { Banner } from "./banners";
 
 const AllFlaws = React.lazy(() => import("./flaws"));
 const Translations = React.lazy(() => import("./translations"));
@@ -32,6 +34,14 @@ const Sitemap = React.lazy(() => import("./sitemap"));
 const isServer = typeof window === "undefined";
 
 function Layout({ pageType, children }) {
+  const { pathname } = useLocation();
+  const [category, setCategory] = React.useState<string | null>(
+    docCategory({ pathname })
+  );
+
+  React.useEffect(() => {
+    setCategory(docCategory({ pathname }));
+  }, [pathname]);
   return (
     <>
       <A11yNav />
@@ -42,7 +52,7 @@ function Layout({ pageType, children }) {
        display), remember to go to
        */}
       {/* !isServer && <Banner /> */}
-      <div className={`page-wrapper ${pageType}`}>
+      <div className={`page-wrapper  ${category || ""} ${pageType}`}>
         <TopNavigation />
         {children}
       </div>
@@ -58,20 +68,14 @@ function StandardLayout({
   extraClasses?: string;
   children: React.ReactNode;
 }) {
-  return <Layout pageType={`standard-page ${extraClasses}`}>{children}</Layout>;
+  return (
+    <Layout pageType={`standard-page ${extraClasses ? extraClasses : ""}`}>
+      {children}
+    </Layout>
+  );
 }
 function DocumentLayout({ children }) {
-  const { pathname } = useLocation();
-  const [category, setCategory] = React.useState<string | null>(
-    docCategory({ pathname })
-  );
-
-  React.useEffect(() => {
-    setCategory(docCategory({ pathname }));
-  }, [pathname]);
-  return (
-    <Layout pageType={`document-page ${category || ""}`}>{children}</Layout>
-  );
+  return <Layout pageType="document-page">{children}</Layout>;
 }
 
 /** This component exists so you can dynamically change which sub-component to
@@ -281,10 +285,18 @@ export function App(appProps) {
               }
             />
             <Route
-              path="/contribute/*"
+              path="/community/*"
               element={
                 <StandardLayout>
                   <Contribute />
+                </StandardLayout>
+              }
+            />
+            <Route
+              path="/community/spotlight/*"
+              element={
+                <StandardLayout>
+                  <ContributorSpotlight {...appProps} />
                 </StandardLayout>
               }
             />

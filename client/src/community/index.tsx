@@ -1,3 +1,4 @@
+import { Quote } from "../ui/molecules/quote";
 import "./index.scss";
 
 const STATS = [
@@ -24,18 +25,20 @@ export function Contribute() {
         </section>
       </div>
       <section>
+        <h2>Our volunteer community</h2>
         <p>
           The power of MDN lies in its vast, vital community of active users and
-          contributors. Since the origins of MDN in 2005, approximately 60,000
-          contributions have created the documentation repository we know and
-          love, with over 45,000 documents and counting: An up-to-date,
-          comprehensive and free resource with a wealth of documents both in
-          English and{" "}
+          contributors. Since 2005, approximately 45,000 contributors have
+          created the documentation we know and love. Together, contributors
+          have created over 45,000 documents that make up an up-to-date,
+          comprehensive, and free resource for web developers around the world.
+          In addition to English-language articles,{" "}
           <a href="/en-US/docs/MDN/Contribute/Localize">
-            localized for different languages
-          </a>
-          . With over 200 commits per week, the culture of active contribution
-          is going strong. And you can be a part of it.
+            over 35 volunteers lead translation and localization efforts
+          </a>{" "}
+          for Chinese, French, Japanese, Korean, Portuguese, Russian, and
+          Spanish. With over 200 commits per week, the culture of active
+          contribution is going strong. And you can be a part of it.
         </p>
         <h2>Our partners</h2>
         <h3>The Product Advisory Board</h3>
@@ -52,20 +55,19 @@ export function Contribute() {
           industry. Each quarter, the PAB meets to discuss problems, prioritize
           content creation, and make connections for future collaborations.
         </p>
-        <blockquote className="pab">
-          <div className="partner">
-            <h4>
-              &nbsp;Product&nbsp;
-              <br />
-              &nbsp;Advisory&nbsp;Board&nbsp;
-            </h4>
-          </div>
-          <p>
-            Our constant quest for innovation starts here, with you. Every part
-            of MDN (docs, demos and the site itself) springs from our incredible
-            open community of developers. Please join us!
-          </p>
-        </blockquote>
+        <Quote
+          name="Dan Appelquist"
+          title="Samsung Internet (charter member of the Product
+              Advisory Board)"
+          extraClasses="pab dark"
+        >
+          MDN has a unique place right now as a vendor-neutral and authoritative
+          documentation and information resource for web developers. The MDN PAB
+          has helped to bring feedback from the wider web community (including
+          standards engineers, web browser makers and open source developers)
+          into MDN to help keep it strong. As a member of the web community and
+          a fan of MDN it’s been great to be a part of.
+        </Quote>
         <h3>Open Web Docs</h3>
         <p>
           <a
@@ -89,30 +91,38 @@ export function Contribute() {
           to support “web platform documentation for the benefit of web
           developers &amp; designers worldwide.” The team at OWD has led or
           contributed to many projects to improve documentation on MDN. They're
-          an invaluable partner in the day-to-day work of making MDN.
+          an invaluable partner in the day-to-day work of making MDN. Read more
+          about OWD’s activities in their{" "}
+          <a
+            href="https://github.com/openwebdocs/project/tree/main/impact-report-2021"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="external"
+          >
+            2021 Impact and Transparency Report
+          </a>{" "}
+          and get continuous updates on their{" "}
+          <a
+            href="https://twitter.com/openwebdocs"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="external"
+          >
+            Twitter
+          </a>{" "}
+          account.
         </p>
-        <blockquote className="owd">
-          <div className="partner">
-            <h4>
-              &nbsp;Open&nbsp;
-              <br />
-              &nbsp;Web&nbsp;Docs&nbsp;
-            </h4>
-            <a
-              href="https://openwebdocs.org/"
-              target="_blank"
-              rel="noreferrer noopener"
-              className="external"
-            >
-              openwebdocs.org
-            </a>
-          </div>
-          <p>
-            Our constant quest for innovation starts here, with you. Every part
-            of MDN (docs, demos and the site itself) springs from our incredible
-            open community of developers. Please join us!
-          </p>
-        </blockquote>
+        <Quote
+          name="Florian Scholz"
+          title="Content Lead"
+          org="Open Web Docs"
+          extraClasses="owd dark"
+        >
+          Open Web Docs strongly believes in MDN as critical infrastructure for
+          the web platform. As a vendor-neutral organization, we are supporting
+          MDN with an independent editorial voice and with the needs of the
+          global community of web developers and designers in mind.
+        </Quote>
         <h2>Licensing</h2>
         <p>
           MDN's resources are entirely available under various open source

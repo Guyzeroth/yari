@@ -12,8 +12,9 @@ main.contribute {
     margin-bottom: 3rem;
   }
   section {
-    max-width: 50rem;
+    max-width: 52rem;
     margin: 0 auto;
+    padding: 0 1rem;
 
     &.stats-header {
       display: flex;
@@ -30,59 +31,22 @@ main.contribute {
       @include mify;
     }
 
-    h2,
-    h3 {
-      padding: 0 1rem;
-    }
-
-    p {
-      padding: 0 1rem;
-    }
-
-    blockquote {
-      margin: 2rem 0;
-      padding: 2rem;
-      display: flex;
-      flex-direction: row;
-      gap: 2rem;
-      border: none;
-
-      @media screen and (max-width: 40rem) {
-        flex-wrap: wrap-reverse;
-      }
-
+    .quote {
       &.owd {
-        background-color: var(--text-primary);
+        background-color: var(--text-link);
         color: var(--background-primary);
 
-        h4 {
-          color: var(--text-primary);
+        .icon {
           background-color: var(--background-primary);
         }
       }
 
       &.pab {
-        background-color: var(--text-link);
-        color: var(--background-primary);
+        background-color: var(--background-primary);
+        color: var(--text-primary);
 
-        h4 {
+        .icon {
           background-color: var(--text-primary);
-        }
-      }
-
-      .partner {
-        width: 100%;
-        width: max-content;
-        flex-direction: column;
-
-        h4 {
-          font-size: 2rem;
-          display: inline;
-          line-height: 1.4;
-        }
-
-        a {
-          display: block;
         }
       }
     }

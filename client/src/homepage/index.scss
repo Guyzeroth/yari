@@ -6,13 +6,13 @@
   flex-direction: column;
   align-items: center;
 
-  width: 100vw;
+  width: 100%;
   overflow-x: clip;
   overflow-y: visible;
   position: relative;
 
   p {
-    font: var(--type-body-m);
+    font: var(--type-body-l);
   }
 
   .mdn-ui-emphasis-l {
@@ -31,7 +31,8 @@
   .tile-container {
     display: flex;
     flex-direction: column;
-    max-width: 45rem;
+    max-width: 52rem;
+    padding: 0 1rem;
     gap: 1rem;
   }
 
@@ -67,6 +68,9 @@
     p {
       font: var(--type-body-m);
       margin: 0;
+      max-height: 8rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 

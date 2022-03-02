@@ -1,11 +1,12 @@
 import dayjs from "dayjs";
 import useSWR from "swr";
 import { CRUD_MODE } from "../../constants";
+import { HydrationData } from "../../types/hydration";
 
 import "./index.scss";
 
-function RecentContributions(props) {
-  const { data } = useSWR<any>(
+function RecentContributions(props: HydrationData<any>) {
+  const { data: { hyData } = {} } = useSWR<any>(
     "./index.json",
     async (url) => {
       const response = await fetch(url);
@@ -16,9 +17,7 @@ function RecentContributions(props) {
       return await response.json();
     },
     {
-      initialData: props.pullRequestsData
-        ? { pullRequestsData: props.pullRequestsData }
-        : undefined,
+      initialData: props.hyData ? props : undefined,
       revalidateOnFocus: CRUD_MODE,
     }
   );
@@ -27,9 +26,9 @@ function RecentContributions(props) {
     <section className="recent-contributions">
       <h2 className="mdn-ui-emphasis-l">Recent contributions</h2>
       <ul className="contribution-list">
-        {data &&
-          data.pullRequestsData.items.map((pullRequest) => (
-            <li className="request-item">
+        {hyData &&
+          hyData.pullRequestsData.items.map((pullRequest) => (
+            <li className="request-item" key={pullRequest.number}>
               <p className="request-title">
                 <a href={pullRequest.pull_request.html_url}>
                   {pullRequest.title}{" "}
@@ -37,9 +36,9 @@ function RecentContributions(props) {
                 <span>
                   <a
                     className="request-repo"
-                    href={data.pullRequestsData.repo.url}
+                    href={hyData.pullRequestsData.repo.url}
                   >
-                    {data.pullRequestsData.repo.name}
+                    {hyData.pullRequestsData.repo.name}
                   </a>
                 </span>
               </p>

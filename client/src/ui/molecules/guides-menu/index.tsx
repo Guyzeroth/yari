@@ -17,7 +17,7 @@ export const GuidesMenu = ({ visibleSubMenuId, toggleMenu }) => {
         description: "Learn web development",
         extraClasses: "apis-link-container",
         hasIcon: true,
-        iconClasses: "submenu-icon",
+        iconClasses: "submenu-icon learn",
         label: "MDN Learning Area",
         url: `/${locale}/docs/Learn`,
       },
@@ -44,14 +44,6 @@ export const GuidesMenu = ({ visibleSubMenuId, toggleMenu }) => {
         iconClasses: "submenu-icon javascript",
         label: "JavaScript",
         url: `/${locale}/docs/Learn/JavaScript`,
-      },
-
-      {
-        description: "Learn to work with user data",
-        hasIcon: true,
-        iconClasses: "submenu-icon",
-        label: "Web forms",
-        url: `/${locale}/docs/Learn/Forms`,
       },
       {
         description: "Learn to make the web accessible to all",
