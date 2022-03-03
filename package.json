@@ -74,7 +74,7 @@
     "express": "4.17.3",
     "fast-xml-parser": "4.0.4",
     "fdir": "5.2.0",
-    "file-type": "16.5.3",
+    "file-type": "17.1.1",
     "front-matter": "^4.0.2",
     "fs-extra": "10.0.0",
     "glob": "^7.2.0",
