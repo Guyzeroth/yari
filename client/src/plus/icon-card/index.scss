@@ -1,19 +1,10 @@
 @use "../../ui/vars" as *;
-@use "../../ui/vars" as *;
+@use "~@mdn/minimalist/sass/mixins/animation" as *;
 
 .icon-card-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
 }
 
 .icon-card {
@@ -22,7 +13,7 @@
   background-color: var(--background-primary);
   padding: 1rem 1rem 1rem 0.5rem;
   transition: 0.3s ease-out; // this removes a flash from .doomed animations
-  animation: fadeIn 0.4s;
+  animation: fade-in 0.4s;
 
   a {
     &:link,
