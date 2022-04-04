@@ -25,6 +25,8 @@ declare const self: ServiceWorkerGlobalScope;
 
 self.addEventListener("install", (e) => {
   // synchronizeDb();
+  let tick = 0;
+  const interval = setInterval(() => console.log(tick++), 1000);
   e.waitUntil(
     (async () => {
       const cache = await openCache();
@@ -34,7 +36,13 @@ self.addEventListener("install", (e) => {
         (asset) => !(asset as string).endsWith(".map")
       );
       await cache.addAll(assets as string[]);
-    })().then(() => self.skipWaiting())
+      const version = new URLSearchParams(location.search).get("version");
+      console.log(`Installing ${version}`);
+      return await updateContent(self, { latest: version }, e);
+    })().then(() => {
+      clearInterval(interval);
+      self.skipWaiting();
+    })
   );
 });
 
@@ -56,6 +64,8 @@ self.addEventListener("fetch", (e) => {
       })()
     );
   } else {
+    console.log(`respond to fetch`);
+    console.log(e.request);
     e.respondWith(respond(e));
   }
   if (e.request.method === "POST") {

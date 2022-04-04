@@ -57,6 +57,7 @@ export class UpdateStatus {
 }
 
 export class MDNWorker {
+  registration: ServiceWorkerRegistration | null;
   updateStatus: UpdateStatus;
   settings: SettingsData;
   latestUpdate: UpdateData | null;
@@ -74,6 +75,7 @@ export class MDNWorker {
     this.latestUpdate = null;
     this.registered = false;
     this.timeout = null;
+    this.registration = null;
 
     if (this.settings.autoUpdates) {
       this.autoUpdate();
@@ -87,7 +89,7 @@ export class MDNWorker {
       this.timeout = null;
     }
     await this.getUpdate();
-    this.update();
+    await this.update();
     this.timeout = setTimeout(() => this.autoUpdate(), 60 * 60 * 1000);
   }
 
@@ -108,9 +110,11 @@ export class MDNWorker {
     return navigator.serviceWorker.controller;
   }
 
-  update() {
+  async update() {
+    const registration = await window.navigator.serviceWorker.getRegistration();
+    console.log(`registration`, registration);
     if (
-      this.updating ||
+      this.registration?.installing ||
       this.updateStatus.currentVersion === this.latestUpdate?.latest
     ) {
       return;
@@ -129,12 +133,23 @@ export class MDNWorker {
       payload["date"] = this.latestUpdate.date;
     }
     this.updateStatus.state = STATE.downloading;
-    this.controller()?.postMessage({ type: "update", ...payload });
+    console.log(`Update request. Current registration = ${registration}`);
+    const unregistered = await registration?.unregister();
+    console.log(`Unregistration = ${unregistered}`);
+    this.enableServiceWorker(
+      this.settings.preferOnline,
+      this.latestUpdate?.latest
+    );
+  }
+
+  async getRegistration() {
+    return await window.navigator?.serviceWorker.getRegistration();
   }
 
   async getUpdate(): Promise<UpdateData | null> {
+    const registration = await this.getRegistration();
     if (
-      this.updating ||
+      registration?.installing ||
       !(
         this.updateStatus.state === STATE.nothing ||
         this.updateStatus.state === STATE.init
@@ -163,26 +178,39 @@ export class MDNWorker {
     return update;
   }
 
-  swName(onlineFirst: boolean | null | undefined = null) {
+  swName(
+    onlineFirst: boolean | null | undefined = null,
+    version: string | null | undefined
+  ) {
     const onlineFirstSW = onlineFirst ?? this.settings.preferOnline ?? false;
-    return `/service-worker.js?preferOnline=${onlineFirstSW}`;
+    return `/service-worker.js?preferOnline=${onlineFirstSW}&version=${version}`;
   }
 
-  async enableServiceWorker(onlineFirst: boolean | null | undefined = null) {
+  async enableServiceWorker(
+    onlineFirst: boolean | null | undefined = null,
+    version: string | null | undefined
+  ) {
+    console.log(`Enable service worker ${this.swName(onlineFirst, version)}`);
     if ("serviceWorker" in navigator) {
-      await navigator.serviceWorker.register(this.swName(onlineFirst), {
-        scope: "/",
-      });
+      const registration = await navigator.serviceWorker.register(
+        this.swName(onlineFirst, version),
+        {
+          scope: "/",
+        }
+      );
       this.registered = true;
+      this.registration = registration;
     }
     registerMessageHandler();
   }
 
   async disableServiceWorker() {
+    console.log(`disableServiceWorker`);
     if ("serviceWorker" in navigator) {
       const registration = await navigator.serviceWorker.getRegistration();
       await registration?.unregister();
       this.registered = false;
+      this.registration = null;
     }
   }
 
@@ -206,13 +234,17 @@ export class MDNWorker {
     const current = this.offlineSettings();
 
     if (!current.offline && settingsData.offline && !this.registered) {
-      await this.enableServiceWorker(settingsData.preferOnline);
+      const update = await this.getUpdate();
+      await this.enableServiceWorker(settingsData.preferOnline, update?.latest);
     } else if (
       "preferOnline" in settingsData &&
       current.preferOnline !== settingsData.preferOnline
     ) {
       await this.disableServiceWorker();
-      await this.enableServiceWorker(settingsData.preferOnline);
+      await this.enableServiceWorker(
+        settingsData.preferOnline,
+        settingsData.currentVersion
+      );
     }
     if (current.offline && settingsData.offline === false) {
       await this.disableServiceWorker();
@@ -296,6 +328,9 @@ function registerMessageHandler() {
   );
 }
 
-if (window.mdnWorker.settings.offline) {
-  window.mdnWorker.enableServiceWorker(window.mdnWorker.settings.preferOnline);
-}
+// if (window.mdnWorker.settings.offline) {
+//   window.mdnWorker.enableServiceWorker(
+//     window.mdnWorker.settings.preferOnline,
+//     window.mdnWorker.settings.currentVersion
+//   );
+// }
