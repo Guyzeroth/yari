@@ -5,7 +5,6 @@ import path from "path";
 import chalk from "chalk";
 import express from "express";
 import send from "send";
-import { createProxyMiddleware } from "http-proxy-middleware";
 import cookieParser from "cookie-parser";
 import openEditor from "open-editor";
 
@@ -18,20 +17,17 @@ import { findDocumentTranslations } from "../content/translations";
 import { Document, Redirect, Image } from "../content";
 import { CONTENT_ROOT, CONTENT_TRANSLATED_ROOT } from "../libs/env";
 import { CSP_VALUE, DEFAULT_LOCALE } from "../libs/constants";
-import {
-  STATIC_ROOT,
-  PROXY_HOSTNAME,
-  FAKE_V1_API,
-  CONTENT_HOSTNAME,
-  OFFLINE_CONTENT,
-} from "../libs/env";
+import { STATIC_ROOT, OFFLINE_CONTENT } from "../libs/env";
 
 import documentRouter from "./document";
-import fakeV1APIRouter from "./fake-v1-api";
 import { searchIndexRoute } from "./search-index";
 import flawsRoute from "./flaws";
 import { router as translationsRouter } from "./translations";
-import { staticMiddlewares, originRequestMiddleware } from "./middlewares";
+import {
+  staticMiddlewares,
+  originRequestMiddleware,
+  proxyMiddleware,
+} from "./middlewares";
 import { getRoot } from "../content/utils";
 
 import { renderHTML } from "../ssr/dist/main";
@@ -53,65 +49,14 @@ async function buildDocumentFromURL(url) {
 
 const app = express();
 
-// Depending on if FAKE_V1_API is set, we either respond with JSON based
-// on `.json` files on disk or we proxy the requests to Kuma.
-const proxy = FAKE_V1_API
-  ? fakeV1APIRouter
-  : createProxyMiddleware({
-      target: `${
-        ["developer.mozilla.org", "developer.allizom.org"].includes(
-          PROXY_HOSTNAME
-        )
-          ? "https://"
-          : "http://"
-      }${PROXY_HOSTNAME}`,
-      changeOrigin: true,
-      // proxyTimeout: 20000,
-      // timeout: 20000,
-    });
-
-const contentProxy =
-  CONTENT_HOSTNAME &&
-  createProxyMiddleware({
-    target: `https://${CONTENT_HOSTNAME}`,
-    changeOrigin: true,
-    // proxyTimeout: 20000,
-    // timeout: 20000,
-  });
-
-app.use("/api/*", proxy);
-// This is an exception and it's only ever relevant in development.
-app.use("/users/*", proxy);
-
 // The proxy middleware has to come before all other middleware to avoid modifying the requests we proxy.
+app.use("/api/*", proxyMiddleware);
 
 app.use(express.json());
-
-// Needed because we read cookies in the code that mimics what we do in Lambda@Edge.
 app.use(cookieParser());
-
 app.use(originRequestMiddleware);
-
 app.use(staticMiddlewares);
-
 app.use(express.urlencoded({ extended: true }));
-
-app.post(
-  "/csp-violation-capture",
-  express.json({ type: "application/csp-report" }),
-  (req, res) => {
-    const report = req.body["csp-report"];
-    console.warn(
-      chalk.yellow(
-        "CSP violation for directive",
-        report["violated-directive"],
-        "which blocked:",
-        report["blocked-uri"]
-      )
-    );
-    res.sendStatus(200);
-  }
-);
 
 app.use("/_document", documentRouter);
 
@@ -198,10 +143,6 @@ app.get("/*", async (req, res, ...args) => {
   }
   if (OFFLINE_CONTENT) {
     return res.status(404).send("Offline");
-  }
-  if (contentProxy) {
-    console.log(`proxying: ${req.url}`);
-    return contentProxy(req, res, ...args);
   }
 
   if (req.url.includes("/_sample_.")) {

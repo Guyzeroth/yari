@@ -1,7 +1,8 @@
 import express from "express";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 import { CSP_VALUE } from "../libs/constants";
-import { STATIC_ROOT } from "../libs/env";
+import { PROXY_HOSTNAME, STATIC_ROOT } from "../libs/env";
 import { resolveFundamental } from "../libs/fundamental-redirects";
 import { getLocale } from "../libs/get-locale";
 import { devMiddlewares } from "./dev";
@@ -49,6 +50,16 @@ const originRequest = (req, res, next) => {
   }
 };
 
+const proxyMiddleware = createProxyMiddleware({
+  target: `${
+    ["developer.mozilla.org", "developer.allizom.org"].includes(PROXY_HOSTNAME)
+      ? "https://"
+      : "http://"
+  }${PROXY_HOSTNAME}`,
+  changeOrigin: true,
+});
+
+export { proxyMiddleware };
 export const staticMiddlewares = [
   ...devMiddlewares,
   slugRewrite,
