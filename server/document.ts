@@ -10,13 +10,6 @@ import { Doc } from "../libs/types/document";
 
 const router = express();
 
-// XXX deprecated anyway and doesn't work with Markdown
-// router.post("/", (req, res) => {
-//   const { rawHTML, metadata } = req.body;
-//   Document.create(rawHTML, metadata);
-//   res.sendStatus(201);
-// });
-
 interface RequestWithDocument extends Request {
   document: Partial<Doc & { url: string }>;
 }
@@ -77,12 +70,6 @@ router.put("/", withDocument, async (req: RequestWithDocument, res) => {
   }
   res.sendStatus(200);
 });
-
-// XXX deprecated anyway and doesn't work with Markdown
-// router.put("/move", async (req, res) => {
-//   Document.move(req.query.slug, req.query.newSlug, req.query.locale);
-//   res.sendStatus(200);
-// });
 
 router.delete("/", (req, res) => {
   Document.remove(req.query.slug as string, req.query.locale as string, {
