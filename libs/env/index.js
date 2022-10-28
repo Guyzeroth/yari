@@ -146,8 +146,6 @@ const STATIC_ROOT =
 const PROXY_HOSTNAME =
   process.env.REACT_APP_KUMA_HOST || "developer.mozilla.org";
 
-const OFFLINE_CONTENT = process.env.SERVER_OFFLINE_CONTENT === "true";
-
 module.exports = {
   ROOT,
   // build
@@ -177,5 +175,4 @@ module.exports = {
   // server
   STATIC_ROOT,
   PROXY_HOSTNAME,
-  OFFLINE_CONTENT,
 };

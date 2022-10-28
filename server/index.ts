@@ -17,7 +17,7 @@ import { findDocumentTranslations } from "../content/translations";
 import { Document, Redirect, Image } from "../content";
 import { CONTENT_ROOT, CONTENT_TRANSLATED_ROOT } from "../libs/env";
 import { CSP_VALUE, DEFAULT_LOCALE } from "../libs/constants";
-import { STATIC_ROOT, OFFLINE_CONTENT } from "../libs/env";
+import { STATIC_ROOT } from "../libs/env";
 
 import documentRouter from "./document";
 import { searchIndexRoute } from "./search-index";
@@ -140,9 +140,6 @@ app.get("/*", async (req, res, ...args) => {
   // If the catch-all gets one of these something's gone wrong
   if (req.url.startsWith("/static")) {
     return res.status(404).send("Page not found");
-  }
-  if (OFFLINE_CONTENT) {
-    return res.status(404).send("Offline");
   }
 
   if (req.url.includes("/_sample_.")) {
