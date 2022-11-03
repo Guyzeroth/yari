@@ -23,11 +23,10 @@ import documentRouter from "./document";
 import { searchIndexRoute } from "./search-index";
 import flawsRoute from "./flaws";
 import { router as translationsRouter } from "./translations";
-import {
-  staticMiddlewares,
-  originRequestMiddleware,
-  proxyMiddleware,
-} from "./middlewares";
+import { staticMiddlewares, proxyMiddleware } from "./middlewares";
+
+import originRequest from "./middlewares/origin-request";
+
 import { getRoot } from "../content/utils";
 
 import { renderHTML } from "../ssr/dist/main";
@@ -48,13 +47,13 @@ async function buildDocumentFromURL(url) {
 }
 
 const app = express();
-
 // The proxy middleware has to come before all other middleware to avoid modifying the requests we proxy.
 app.use("/api/*", proxyMiddleware);
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(originRequestMiddleware);
+app.use(originRequest);
+// app.use(originRequestMiddleware);
 app.use(staticMiddlewares);
 app.use(express.urlencoded({ extended: true }));
 

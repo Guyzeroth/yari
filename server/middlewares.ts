@@ -69,4 +69,5 @@ export const staticMiddlewares = [
     },
   }),
 ];
+
 export const originRequestMiddleware = originRequest;
